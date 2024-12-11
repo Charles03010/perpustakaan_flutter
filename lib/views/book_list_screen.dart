@@ -15,6 +15,61 @@ class BookListScreen extends StatelessWidget {
     return 'Rp ${formatter.format(price)}';
   }
 
+  // Fungsi untuk mengurangi stok setelah pembelian
+  void _buyBook(BuildContext context, Book book) async {
+    if (book.stock > 0) {
+      bool? confirmBuy = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Konfirmasi Pembelian'),
+            content:
+                Text('Apakah Anda yakin ingin membeli buku "${book.title}"?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, false); // Pembatalan
+                },
+                child: const Text('Batal'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, true); // Konfirmasi
+                },
+                child: const Text('Beli'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirmBuy == true) {
+        // Kurangi stok buku sebanyak 1
+        int newStock = book.stock - 1;
+        Book updatedBook = Book(
+          id: book.id,
+          title: book.title,
+          author: book.author,
+          price: book.price,
+          stock: newStock,
+        );
+
+        // Update data buku di Firestore
+        await _bookService.updateBook(updatedBook);
+
+        // Tampilkan pesan konfirmasi
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Pembelian buku "${book.title}" berhasil!')),
+        );
+      }
+    } else {
+      // Stok kosong
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Stok buku ini habis!')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,11 +138,13 @@ class BookListScreen extends StatelessWidget {
                           children: [
                             // Menampilkan harga
                             Text(formatPrice(book.price)),
-                            const SizedBox(height: 4),
-                            // Menampilkan informasi stok dalam trailing
-                            Text('Stok: ${book.stock}'),
+                            // const SizedBox(height: 4),
+                            // // Menampilkan informasi stok dalam trailing
+                            // Text('Stok: ${book.stock}'),
                           ],
                         ),
+                        // Menambahkan tombol beli
+                        onTap: () => _buyBook(context, book),
                       );
                     },
                   ),

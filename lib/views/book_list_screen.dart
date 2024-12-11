@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart'; // Pastikan LoginScreen sudah diimport
 import '../services/book_service.dart';
 import '../models/book_model.dart';
+import 'package:intl/intl.dart'; // Import for number formatting
+import 'login_screen.dart'; // Import the LoginScreen
 
 class BookListScreen extends StatelessWidget {
   final BookService _bookService = BookService();
 
   BookListScreen({super.key});
+
+  // Function to format price as currency (e.g., Rp 1,000,000)
+  String formatPrice(int price) {
+    final formatter = NumberFormat('#,###');
+    return 'Rp ${formatter.format(price)}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +21,11 @@ class BookListScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Daftar Buku'),
         actions: [
+          // Logout button
           IconButton(
-            icon: const Icon(Icons.exit_to_app), // Ikon logout
+            icon: const Icon(Icons.exit_to_app),
             onPressed: () {
-              // Navigasi ke halaman login
+              // Navigasi kembali ke LoginScreen saat logout
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -31,14 +39,21 @@ class BookListScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Daftar Buku:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Daftar Buku:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             StreamBuilder<List<Book>>(
               stream: _bookService.getBooks(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                      child: Text('Terjadi kesalahan: ${snapshot.error}'));
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -55,8 +70,7 @@ class BookListScreen extends StatelessWidget {
                       return ListTile(
                         title: Text(book.title),
                         subtitle: Text(book.author),
-                        trailing: Text(_bookService.formatRupiah(
-                            book.price)), // Format harga dengan rupiah
+                        trailing: Text(formatPrice(book.price)),
                       );
                     },
                   ),

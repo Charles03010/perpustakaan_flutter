@@ -1,8 +1,8 @@
 class Book {
-  final String id;
-  final String title;
-  final String author;
-  final int price;
+  String id;
+  String title;
+  String author;
+  int price;
 
   Book({
     required this.id,
@@ -11,16 +11,18 @@ class Book {
     required this.price,
   });
 
-  factory Book.fromFirestore(Map<String, dynamic> data, String id) {
+  // Membuat objek Book dari Map (misalnya data dari Firestore)
+  factory Book.fromMap(Map<String, dynamic> data, String documentId) {
     return Book(
-      id: id,
+      id: documentId, // Menyertakan ID yang dihasilkan Firestore
       title: data['title'],
       author: data['author'],
       price: data['price'],
     );
   }
 
-  Map<String, dynamic> toJson() {
+  // Mengubah objek Book menjadi Map (untuk disimpan ke Firestore)
+  Map<String, dynamic> toMap() {
     return {
       'title': title,
       'author': author,

@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart'; // Pastikan LoginScreen sudah diimport
+import 'package:perpustakaan_flutter/views/login_screen.dart';
+import 'add_book_screen.dart';  // Halaman untuk menambahkan buku
 import '../services/book_service.dart';
 import '../models/book_model.dart';
 
-class BookListScreen extends StatelessWidget {
+class AdminScreen extends StatelessWidget {
   final BookService _bookService = BookService();
 
-  BookListScreen({super.key});
+ AdminScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Buku'),
+        title: const Text('Daftar Buku - Admin'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.exit_to_app), // Ikon logout
+            icon: const Icon(Icons.exit_to_app),
             onPressed: () {
-              // Navigasi ke halaman login
+              // Logout atau kembali ke halaman login
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -31,8 +32,7 @@ class BookListScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Daftar Buku:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('Daftar Buku:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             StreamBuilder<List<Book>>(
               stream: _bookService.getBooks(),
@@ -55,8 +55,7 @@ class BookListScreen extends StatelessWidget {
                       return ListTile(
                         title: Text(book.title),
                         subtitle: Text(book.author),
-                        trailing: Text(_bookService.formatRupiah(
-                            book.price)), // Format harga dengan rupiah
+                        trailing: Text(_bookService.formatRupiah(book.price)), // Format harga dengan rupiah
                       );
                     },
                   ),
@@ -65,6 +64,17 @@ class BookListScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigasi ke AddBookScreen untuk menambah buku
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddBookScreen()),
+          );
+        },
+        tooltip: 'Tambah Buku', // Tooltip untuk FAB
+        child: const Icon(Icons.add),
       ),
     );
   }

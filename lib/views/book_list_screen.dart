@@ -69,8 +69,25 @@ class BookListScreen extends StatelessWidget {
                       var book = books[index];
                       return ListTile(
                         title: Text(book.title),
-                        subtitle: Text(book.author),
-                        trailing: Text(formatPrice(book.price)),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(book.author),
+                            const SizedBox(height: 4),
+                            // Menampilkan stok buku
+                            Text('Stok: ${book.stock}'),
+                          ],
+                        ),
+                        trailing: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            // Menampilkan harga
+                            Text(formatPrice(book.price)),
+                            const SizedBox(height: 4),
+                            // Menampilkan informasi stok dalam trailing
+                            Text('Stok: ${book.stock}'),
+                          ],
+                        ),
                       );
                     },
                   ),

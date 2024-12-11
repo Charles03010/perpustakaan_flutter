@@ -43,4 +43,82 @@ class BookService {
       print('Error updating book: $e');
     }
   }
+
+  // Fungsi untuk menambah stok buku
+  Future<void> addStock(String bookId, int quantity) async {
+    if (quantity <= 0) {
+      print('Jumlah stok yang ditambahkan harus lebih dari 0');
+      return;
+    }
+    try {
+      // Mendapatkan referensi buku
+      DocumentReference bookRef = _db.collection('books').doc(bookId);
+      // Mendapatkan data buku yang ada
+      DocumentSnapshot bookSnapshot = await bookRef.get();
+      if (bookSnapshot.exists) {
+        // Mendapatkan data stok saat ini
+        int currentStock = bookSnapshot['stock'] ?? 0;
+        // Menambah stok dengan quantity yang diberikan
+        int newStock = currentStock + quantity;
+        // Memperbarui stok buku di Firestore
+        await bookRef.update({'stock': newStock});
+        print('Stok buku dengan ID $bookId berhasil ditambah. Stok baru: $newStock');
+      } else {
+        print('Buku dengan ID $bookId tidak ditemukan.');
+      }
+    } catch (e) {
+      print('Error adding stock: $e');
+    }
+  }
+
+  // Fungsi untuk mengurangi stok buku
+  Future<void> reduceStock(String bookId, int quantity) async {
+    if (quantity <= 0) {
+      print('Jumlah stok yang dikurangi harus lebih dari 0');
+      return;
+    }
+    try {
+      // Mendapatkan referensi buku
+      DocumentReference bookRef = _db.collection('books').doc(bookId);
+      // Mendapatkan data buku yang ada
+      DocumentSnapshot bookSnapshot = await bookRef.get();
+      if (bookSnapshot.exists) {
+        // Mendapatkan data stok saat ini
+        int currentStock = bookSnapshot['stock'] ?? 0;
+        if (currentStock >= quantity) {
+          // Mengurangi stok
+          int newStock = currentStock - quantity;
+          // Memperbarui stok buku di Firestore
+          await bookRef.update({'stock': newStock});
+          print('Stok buku dengan ID $bookId berhasil dikurangi. Stok baru: $newStock');
+        } else {
+          print('Stok tidak mencukupi untuk dikurangi.');
+        }
+      } else {
+        print('Buku dengan ID $bookId tidak ditemukan.');
+      }
+    } catch (e) {
+      print('Error reducing stock: $e');
+    }
+  }
+
+  // Fungsi untuk memeriksa apakah buku tersedia
+  Future<bool> isBookAvailable(String bookId) async {
+    try {
+      // Mendapatkan referensi buku
+      DocumentReference bookRef = _db.collection('books').doc(bookId);
+      // Mendapatkan data buku
+      DocumentSnapshot bookSnapshot = await bookRef.get();
+      if (bookSnapshot.exists) {
+        int stock = bookSnapshot['stock'] ?? 0;
+        return stock > 0;
+      } else {
+        print('Buku dengan ID $bookId tidak ditemukan.');
+        return false;
+      }
+    } catch (e) {
+      print('Error checking availability: $e');
+      return false;
+    }
+  }
 }

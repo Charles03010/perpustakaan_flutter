@@ -14,17 +14,22 @@ class AddBookScreenState extends State<AddBookScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _authorController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _stockController = TextEditingController(); // Controller untuk stok
   final BookService _bookService = BookService();
 
   Future<void> _uploadBook() async {
     if (_formKey.currentState!.validate()) {
       try {
+        // Ambil stok dari TextField dan konversi ke integer
+        int stock = int.tryParse(_stockController.text) ?? 0;
+
         // Create book object
         Book book = Book(
           id: '', // Firestore will generate the ID
           title: _titleController.text,
           author: _authorController.text,
           price: int.parse(_priceController.text),
+          stock: stock, // Menambahkan stok ke dalam book
         );
 
         await _bookService.addBook(book);
@@ -82,6 +87,23 @@ class AddBookScreenState extends State<AddBookScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Harga tidak boleh kosong';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _stockController, // Menambahkan TextFormField untuk stok
+                decoration: const InputDecoration(labelText: 'Stok'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Stok tidak boleh kosong';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Stok harus berupa angka';
+                  }
+                  if (int.tryParse(value)! < 0) {
+                    return 'Stok tidak boleh negatif';
                   }
                   return null;
                 },

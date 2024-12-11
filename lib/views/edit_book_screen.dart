@@ -15,7 +15,9 @@ class EditBookScreenState extends State<EditBookScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _authorController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-  
+  final TextEditingController _stockController =
+      TextEditingController(); // Controller untuk stok
+
   final BookService _bookService = BookService();
 
   @override
@@ -24,6 +26,8 @@ class EditBookScreenState extends State<EditBookScreen> {
     _titleController.text = widget.book.title;
     _authorController.text = widget.book.author;
     _priceController.text = widget.book.price.toString();
+    _stockController.text =
+        widget.book.stock.toString(); // Menginisialisasi stok
   }
 
   void _updateBook() async {
@@ -32,6 +36,7 @@ class EditBookScreenState extends State<EditBookScreen> {
       title: _titleController.text,
       author: _authorController.text,
       price: int.parse(_priceController.text),
+      stock: int.parse(_stockController.text), // Menambahkan stok ke buku
     );
 
     await _bookService.updateBook(updatedBook);
@@ -61,6 +66,11 @@ class EditBookScreenState extends State<EditBookScreen> {
             TextField(
               controller: _priceController,
               decoration: const InputDecoration(labelText: 'Harga Buku'),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: _stockController,
+              decoration: const InputDecoration(labelText: 'Stok Buku'),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 20),
